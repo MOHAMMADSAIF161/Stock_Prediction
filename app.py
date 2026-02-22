@@ -86,39 +86,33 @@ input_features = [col for col in all_features if col != selected_features]
 
 if st.button("Predict Price"):
 
-    # Safety check
-    if len(selected_features) == 0:
-        st.error("⚠️ Please select at least one feature!")
-        st.stop()
+    st.cache_data.clear()
 
-    # Load data (cached)
     df = load_data(ticker, start_date, end_date)
+
+    if df.empty:
+        st.error("❌ No data found for this stock!")
+        st.stop()
 
     st.subheader("📊 Raw Data")
     st.write(df.tail())
 
-    # Preprocess (cached)
     df = preprocess_data(df)
 
-    # Features & Target
     X = df[input_features]
     y = df[selected_features].shift(-1)
 
     y = y[:-1]
     X = X[:-1]
 
-    # Split
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, shuffle=False
     )
 
-    # Train model (cached per feature set)
     model = train_model(X_train, y_train, tuple(selected_features))
 
-    # Predictions
     predictions = model.predict(X_test)
 
-    # Metrics
     mse = mean_squared_error(y_test, predictions)
     r2 = r2_score(y_test, predictions)
 
@@ -126,14 +120,12 @@ if st.button("Predict Price"):
     st.write("MSE:", mse)
     st.write("R² Score:", r2)
 
-    # Future prediction
     last_row = X.iloc[-1]
     future_price = model.predict(np.array(last_row).reshape(1, -1))
 
     st.subheader(f"🔮 Next Day Predicted {selected_features} Price")
     st.success(f"${int(future_price[0])}")
 
-    # Chart
     st.subheader(f"📉 {selected_features} Price Chart")
-    st.line_chart(y)
+    st.line_chart(df[selected_features])
 
