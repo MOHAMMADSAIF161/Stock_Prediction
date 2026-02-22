@@ -127,5 +127,10 @@ if st.button("Predict Price"):
     st.success(f"${int(future_price[0])}")
 
     st.subheader(f"📉 {selected_features} Price Chart")
-    st.line_chart(df[selected_features])
+
+    chart_data = df[[selected_features]].copy()
+    chart_data = chart_data.dropna()
+
+    st.line_chart(chart_data)
+
 
