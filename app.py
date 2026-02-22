@@ -99,6 +99,10 @@ if st.button("Predict Price"):
 
     df = preprocess_data(df)
 
+if df.empty:
+    st.error("❌ Not enough data after preprocessing to plot chart")
+    st.stop()
+
     X = df[input_features]
     y = df[selected_features].shift(-1)
 
@@ -132,5 +136,6 @@ if st.button("Predict Price"):
     chart_data = chart_data.dropna()
 
     st.line_chart(chart_data)
+
 
 
