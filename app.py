@@ -7,6 +7,7 @@ from datetime import date
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
+st.title("📈 AI Stock Price Predictor")
 @st.cache_data
 def load_stock_list():
     # Load NSE stocks
@@ -135,3 +136,4 @@ if st.button("Predict Price"):
     # Chart
     st.subheader(f"📉 {selected_features} Price Chart")
     st.line_chart(y)
+
