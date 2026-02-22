@@ -34,11 +34,16 @@ ticker = st.selectbox(
 )
 # ==============================
 # CACHE FUNCTIONS
-# ==============================
+# =============================
 
 @st.cache_data
 def load_data(ticker, start_date, end_date):
     df = yf.download(ticker, start=start_date, end=end_date)
+
+    # FIX: Flatten multi-index columns
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.get_level_values(0)
+
     return df
 
 
@@ -136,6 +141,7 @@ if st.button("Predict Price"):
     chart_data = chart_data.dropna()
 
     st.line_chart(chart_data)
+
 
 
 
