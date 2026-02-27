@@ -9,26 +9,33 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 st.title("📈 AI Stock Price Predictor")
-
 @st.cache_data
 def load_stock_list():
     url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
 
-    headers = {
-        "User-Agent": "Mozilla/5.0"
-    }
+    try:
+        headers = {"User-Agent": "Mozilla/5.0"}
+        response = requests.get(url, headers=headers, timeout=10)
 
-    response = requests.get(url, headers=headers)
+        # Check if valid CSV came
+        if "SYMBOL" not in response.text:
+            raise Exception("Blocked by NSE")
 
-    df = pd.read_csv(StringIO(response.text))
+        df = pd.read_csv(StringIO(response.text))
 
-    df["Yahoo"] = df["SYMBOL"] + ".NS"
+        df["Yahoo"] = df["SYMBOL"] + ".NS"
+        nse_list = df["Yahoo"].tolist()
 
-    nse_list = df["Yahoo"].tolist()
+    except:
+        # Fallback list if NSE blocks
+        nse_list = [
+            "RELIANCE.NS","TCS.NS","INFY.NS","HDFCBANK.NS",
+            "ICICIBANK.NS","SBIN.NS","LT.NS","ITC.NS"
+        ]
 
     global_stocks = [
-        "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA",
-        "META", "NVDA", "NFLX", "INTC", "IBM"
+        "AAPL","MSFT","GOOGL","AMZN","TSLA",
+        "META","NVDA","NFLX","INTC","IBM"
     ]
 
     return sorted(nse_list + global_stocks)
@@ -150,6 +157,7 @@ if st.button("Predict Price"):
     chart_data = chart_data.dropna()
 
     st.line_chart(chart_data)
+
 
 
 
