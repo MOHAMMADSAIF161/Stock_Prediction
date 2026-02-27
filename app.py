@@ -2,28 +2,37 @@ import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
-
+import requests
+from io import StringIO
 from datetime import date
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 st.title("📈 AI Stock Price Predictor")
+
 @st.cache_data
 def load_stock_list():
-    # Load NSE stocks
     url = "https://archives.nseindia.com/content/equities/EQUITY_L.csv"
-    df = pd.read_csv(url)
+
+    headers = {
+        "User-Agent": "Mozilla/5.0"
+    }
+
+    response = requests.get(url, headers=headers)
+
+    df = pd.read_csv(StringIO(response.text))
+
     df["Yahoo"] = df["SYMBOL"] + ".NS"
 
     nse_list = df["Yahoo"].tolist()
 
-    # Add Global Stocks
     global_stocks = [
         "AAPL", "MSFT", "GOOGL", "AMZN", "TSLA",
         "META", "NVDA", "NFLX", "INTC", "IBM"
     ]
 
     return sorted(nse_list + global_stocks)
+    
 
 stock_list = load_stock_list()
 
@@ -141,6 +150,7 @@ if st.button("Predict Price"):
     chart_data = chart_data.dropna()
 
     st.line_chart(chart_data)
+
 
 
 
